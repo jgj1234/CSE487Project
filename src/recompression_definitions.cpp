@@ -568,36 +568,6 @@ space_efficient_vector<Node> RecompressionRLSLP::enumerateNodes(c_size_t symbol)
   }
   return nodeList;
 }
-void RecompressionRLSLP::getNodeCover(c_size_t node, c_size_t left, c_size_t right, c_size_t queryLeft, c_size_t queryRight, const space_efficient_vector<RLSLPNonterm>& grammar, space_efficient_vector<packed_pair<c_size_t, c_size_t>>& nodes){
-  if (left >= queryLeft && right <= queryRight){
-    nodes.push_back(packed_pair(node, c_size_t(1)));
-    return;
-  }
-  if (left > queryRight || right < queryLeft) return;
-  const RLSLPNonterm& nt = grammar[node];
-  if (nt.type == '1'){
-    c_size_t leftNode = nt.first, rightNode = nt.second;
-    c_size_t leftLength = grammar[leftNode].explen;
-    getNodeCover(leftNode, left, left + leftLength - 1, queryLeft, queryRight, grammar, nodes);
-    getNodeCover(rightNode, left + leftLength, right, queryLeft, queryRight, grammar, nodes);
-  }
-  else{
-    c_size_t child = nt.first, exp = nt.second;
-    c_size_t childLength = grammar[child].explen;
-    c_size_t L = max(queryLeft, left), R = min(queryRight, right);
-    c_size_t firstChild = (L - left) / childLength, lastChild = (R - left) / childLength;
-    if (firstChild == lastChild){
-      c_size_t start_pos = left + firstChild * childLength;
-      getNodeCover(child, start_pos, start_pos + childLength - 1, queryLeft, queryRight, grammar, nodes);
-    }
-    else{
-      c_size_t left_start = left + firstChild * childLength, right_start = left + lastChild * childLength;
-      getNodeCover(child, left_start, left_start + childLength - 1, queryLeft, queryRight, grammar, nodes);
-      if (lastChild - firstChild - 1 > 0) nodes.push_back(packed_pair(child, lastChild - firstChild - 1));
-      getNodeCover(child, right_start, right_start + childLength - 1, queryLeft, queryRight, grammar, nodes);
-    }
-  }
-}
 Node RecompressionRLSLP::getPosition(c_size_t node, c_size_t par, c_size_t idxInPar, c_size_t left, c_size_t right, c_size_t pos, stack<Node>& ancestors, const space_efficient_vector<RLSLPNonterm>& grammar){
   Node curr_node(node, left, right, par, idxInPar); 
   curr_node.level = grammar[node].level;

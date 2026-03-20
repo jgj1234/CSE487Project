@@ -89,7 +89,6 @@ private:
   Node Right(Node& x, stack<Node>& ancestors, const space_efficient_vector<RLSLPNonterm> &grammar);
   c_size_t lext(Node& x, const space_efficient_vector<RLSLPNonterm> &grammar);
   c_size_t rext(Node& x, const space_efficient_vector<RLSLPNonterm> &grammar);
-  void getNodeCover(c_size_t node, c_size_t left, c_size_t right, c_size_t queryLeft, c_size_t queryRight, const space_efficient_vector<RLSLPNonterm>& grammar, space_efficient_vector<packed_pair<c_size_t, c_size_t>>& nodes);
   Node getPosition(c_size_t node, c_size_t par, c_size_t idxInPar, c_size_t left, c_size_t right, c_size_t pos, stack<Node>& ancestors, const space_efficient_vector<RLSLPNonterm>& grammar);
   space_efficient_vector<packed_pair<c_size_t, c_size_t>> getPoppedSequence(c_size_t left, c_size_t right, const space_efficient_vector<RLSLPNonterm>& grammar);
 };

@@ -1,7 +1,7 @@
 #include "MacroMicroTree.hpp"
 
 #include <algorithm>
-#include <unordered_map>
+#include <utils/hash_table.hpp>
 #include <utils/space_efficient_vector.hpp>
 #include <typedefs.hpp>
 using namespace std;
@@ -31,7 +31,7 @@ MacroMicroTree::MacroMicroTree(c_size_t n, space_efficient_vector<space_efficien
         }
     }
     jumpPointers.resize(n);
-    unordered_map<c_size_t, c_size_t>  shapeSeen;
+    hash_table<c_size_t, c_size_t>  shapeSeen;
     c_size_t shapeIdx = 0;
     for (c_size_t i = 0; i < n; i++){
         if (jumpNodes[i] == i){
