@@ -31,7 +31,7 @@ MacroMicroTree::MacroMicroTree(c_size_t n, space_efficient_vector<space_efficien
         }
     }
     jumpPointers.resize(n);
-    hash_table<c_size_t, c_size_t>  shapeSeen;
+    unordered_map<c_size_t, c_size_t>  shapeSeen;
     c_size_t shapeIdx = 0;
     for (c_size_t i = 0; i < n; i++){
         if (jumpNodes[i] == i){
