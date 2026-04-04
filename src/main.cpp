@@ -62,28 +62,6 @@ struct NonTermComparator{
         return c1 < c2;
     }
 };
-void reverseRLSLP(c_size_t node, RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* rev_rlslp){
-    if (rev_rlslp->nonterm[node].first != -1) return;
-    const RLSLPNonterm& nt = recomp_rlslp->nonterm[node];
-    rev_rlslp->nonterm[node].explen = nt.explen;
-    rev_rlslp->nonterm[node].type = nt.type;
-    rev_rlslp->nonterm[node].level = nt.level;
-    if (nt.type == '0'){
-        rev_rlslp->nonterm[node].first = nt.first;
-        rev_rlslp->nonterm[node].second = nt.second;
-    }
-    else if (nt.type == '1'){
-        reverseRLSLP(nt.first, recomp_rlslp, rev_rlslp);
-        reverseRLSLP(nt.second, recomp_rlslp, rev_rlslp);
-        rev_rlslp->nonterm[node].first = nt.second;
-        rev_rlslp->nonterm[node].second = nt.first;
-    }
-    else{
-        reverseRLSLP(nt.first, recomp_rlslp, rev_rlslp);
-        rev_rlslp->nonterm[node].first = nt.first;
-        rev_rlslp->nonterm[node].second = nt.second;
-    }
-}
 packed_pair<c_size_t, c_size_t> getDimensionRange(c_size_t l, c_size_t r, space_efficient_vector<Fragment>& arr, RecompressionRLSLP* rlslp){
     c_size_t lp = 0, rp = arr.size() - 1;
     c_size_t n = rlslp->nonterm.back().explen;
@@ -149,6 +127,7 @@ space_efficient_vector<c_size_t> mapToRange(c_size_t start, c_size_t length, c_s
     resultRange[3] = yRange.second;
     return resultRange;
 }
+//Given a recompression RLSLP `recomp_rlslp' and the reversed version of `recomp_rlslp' stored in `rev_rlslp', report all occurrences of substring S[index..index+length) in S[0..n), where S[0..n) is the string represented by `recomp_rlslp'.
 space_efficient_vector<c_size_t> reportOccurrences(RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* rev_rlslp, c_size_t index, c_size_t length, RangeQuery& rectangleQuery, ReportQueryComponent& reportComp){
     if (length == 1){
         c_size_t symbol = recomp_rlslp->getSymbol(index);
@@ -188,6 +167,7 @@ space_efficient_vector<c_size_t> reportOccurrences(RecompressionRLSLP* recomp_rl
     }
     return results;
 }
+//Given a recompression RLSLP `recomp_rlslp' and the reversed version of `recomp_rlslp' stored in `rev_rlslp', report the leftmost occurrence of substring S[index..index+length) in S[0..n), where S[0..n) is the string represented by `recomp_rlslp'.
 c_size_t getLeftMostOccurrence(RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* rev_rlslp, c_size_t index, c_size_t length, RangeQuery& minQuery){
     if (length == 1){
         c_size_t symbol = recomp_rlslp->getSymbol(index);
@@ -274,6 +254,7 @@ c_size_t countSpecialOccurrences(RecompressionRLSLP* recomp_rlslp, Recompression
     }
     return result;
 }
+//Given a recompression RLSLP `recomp_rlslp' and the reversed version of `recomp_rlslp' stored in `rev_rlslp', report the count of occurrences of substring S[index..index+length) in S[0..n), where S[0..n) is the string represented by `recomp_rlslp'.
 c_size_t countOccurrences(RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* reverse_rlslp, c_size_t index, c_size_t length, space_efficient_vector<c_size_t>& sortedNonterms, RangeQuery& countQuery, CountQueryComponent& countComp){
     return countRegularOccurrences(recomp_rlslp, reverse_rlslp, index, length, countQuery, countComp) + countSpecialOccurrences(recomp_rlslp, reverse_rlslp, index, length, sortedNonterms, countQuery, countComp);
 }
@@ -311,7 +292,7 @@ int main(int argc, char *argv[]){
     auto reverse_rlslp = make_unique<RecompressionRLSLP>();
     recomp_rlslp->initStructures();
     reverse_rlslp->nonterm.resize(nonterms, RLSLPNonterm('0', -1, -1));
-    reverseRLSLP(nonterms - 1, recomp_rlslp.get(), reverse_rlslp.get());
+    recomp_rlslp->reverseRLSLP(nonterms - 1, reverse_rlslp.get());
     reverse_rlslp->initStructures();
     recomp_rlslp->constructTrees();
     CountQueryComponent countComp(recomp_rlslp->nonterm);

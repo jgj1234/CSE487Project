@@ -85,8 +85,18 @@ void CountQueryComponent::getPotentialHooks(const space_efficient_vector<RLSLPNo
     getPotentialHooks(grammar, nt.first, skipPos, skipPos + leftLength - 1, leftY, rightY, length, symbols);
   }
 }
+
+//Given a recompression RLSLP `recomp_rlslp', the reversed version of `recomp_rlslp' stored in `rev_rlslp', a fragment X of S[1..n] represented by S[xl..xr], and a fragment Y of S[1..n] represented by S[yl..yr] where |Y| < 2|X| and S[1..n] is the string represented by `recomp_rlslp', return the leftmost position of X within Y relative to Y (1 - indexed)
+//Return numeric_limits<c_size_t>::max() if X is not found within Y
 c_size_t CountQueryComponent::leftMostIPMQuery(c_size_t xl, c_size_t xr, c_size_t yl, c_size_t yr, RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* reverse_rlslp){
-    //left most position of x in y relative to y (1 indexed)
+    if (xl == yl){
+      if (xr > yr) return numeric_limits<c_size_t>::max();
+      return 1;
+    }
+    if (xl == xr){
+      if (recomp_rlslp->getCharacter(xl) == recomp_rlslp->getCharacter(yl)) return 1;
+      return numeric_limits<c_size_t>::max();
+    }
     space_efficient_vector<Node> hooks;
     c_size_t n = recomp_rlslp->nonterm.back().explen;
     c_size_t xLength = xr - xl + 1;
@@ -105,11 +115,11 @@ c_size_t CountQueryComponent::leftMostIPMQuery(c_size_t xl, c_size_t xr, c_size_
             c_size_t leftLength = recomp_rlslp->nonterm[nt.first].explen;
             c_size_t rightLength = recomp_rlslp->nonterm[nt.second].explen;
             c_size_t occStart = hook.l + leftLength - anchorLength;
-            if (occStart >= yl){
+            if (occStart >= yl && occStart + xLength - 1 <= yr){
                 c_size_t leftLCE = min(min(leftLength, anchorLength), reverse_rlslp->lce(n - 1 - (xl + anchorLength - 1), n - 1 - (hook.l + leftLength - 1)));
                 c_size_t rightLCE = min(min(rightLength, xLength - anchorLength), recomp_rlslp->lce(xl + anchorLength, hook.l + leftLength));
                 if (leftLCE >= anchorLength && rightLCE >= xLength - anchorLength){
-                    leftPos = min(leftPos, hook.l + leftLength - anchorLength - (yl - 1));
+                    leftPos = min(leftPos, occStart - (yl - 1));
                 }
             }
         }
@@ -124,11 +134,11 @@ c_size_t CountQueryComponent::leftMostIPMQuery(c_size_t xl, c_size_t xr, c_size_
             if (minI < k) {
                 c_size_t pos = hook.l + minI * childLength;
                 c_size_t occStart = pos - anchorLength;
-                if (occStart >= yl){
+                if (occStart >= yl && occStart + xLength - 1 <= yr){
                     c_size_t leftLCE = min(min(anchorLength, childLength), reverse_rlslp->lce(n - 1 - (xl + anchorLength - 1), n -1 - (pos - 1)));
                     c_size_t rightLCE = min(min(childLength * (k - minI), xLength - anchorLength), recomp_rlslp->lce(xl + anchorLength, pos));
                     if (leftLCE >= anchorLength && rightLCE >= xLength - anchorLength){
-                        leftPos = min(leftPos, pos - anchorLength - (yl - 1));
+                        leftPos = min(leftPos, occStart - (yl - 1));
                     }
                 }
             }
@@ -137,7 +147,10 @@ c_size_t CountQueryComponent::leftMostIPMQuery(c_size_t xl, c_size_t xr, c_size_
     }
     return leftPos;
 }
+//Given a recompression RLSLP `recomp_rlslp', the reversed version of `recomp_rlslp' stored in `rev_rlslp', a fragment X of S[1..n] represented by S[xl..xr] where S[1..n] is the string represented by `recomp_rlslp`, return per(x) or report that x is not periodic
+//return -1 if x is not periodic
 c_size_t CountQueryComponent::periodQuery(c_size_t l, c_size_t r, RecompressionRLSLP* recomp_rlslp, RecompressionRLSLP* reverse_rlslp){
+    if (l == r) return -1;
     c_size_t length = r - l + 1;
     c_size_t half = (length + 1) / 2;
     c_size_t leftOcc = leftMostIPMQuery(l, l + half - 1, l + 1, r, recomp_rlslp, reverse_rlslp);

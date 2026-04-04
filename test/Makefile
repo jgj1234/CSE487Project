@@ -6,7 +6,7 @@ CFLAGS = -funroll-loops -O3 -DNDEBUG -march=native -std=c++17 -pthread
 INCLUDES = -I../include -I../include/utils -I./include/utils -I../sdsl-lite/include -I$(HOME)/include
 LDFLAGS = -L$(HOME)/lib
 LDLIBS = -lsdsl -ldivsufsort -ldivsufsort64
-SOURCES = ../src/recompression_definitions.cpp ../src/2DRangeQuery.cpp ../src/MacroMicroTree.cpp ../src/utils.cpp ./src/*.cpp
+SOURCES = ../src/recompression_definitions.cpp ../src/2DRangeQuery.cpp ../src/MacroMicroTree.cpp ../src/utils.cpp ../src/CountQueryComponent.cpp ../src/ReportQueryComponent.cpp ./src/*.cpp
 
 .PHONY: all clean nuclear
 

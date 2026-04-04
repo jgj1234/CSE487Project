@@ -55,6 +55,7 @@ public:
   void initStructures();
   void computeExplen();
   void constructTrees();
+  void reverseRLSLP(c_size_t node, RecompressionRLSLP* rev_rlslp);
   void initialize_firstNodes(c_size_t node, c_size_t left, c_size_t right, const space_efficient_vector<RLSLPNonterm>& grammar, space_efficient_vector<Node>& firstNodes);
   space_efficient_vector<c_size_t> getAnchors(c_size_t index, c_size_t length);
   c_size_t getSymbol(c_size_t pos);

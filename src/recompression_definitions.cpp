@@ -316,6 +316,28 @@ void RecompressionRLSLP::initStructures(){
     firstNodes.resize(nonterm_num, Node(-1, -1, -1));
     initialize_firstNodes(nonterm_num - 1, 0, nonterm.back().explen - 1, nonterm, firstNodes);
 }
+void RecompressionRLSLP::reverseRLSLP(c_size_t node, RecompressionRLSLP* rev_rlslp){
+    if (rev_rlslp->nonterm[node].first != -1) return;
+    const RLSLPNonterm& nt = nonterm[node];
+    rev_rlslp->nonterm[node].explen = nt.explen;
+    rev_rlslp->nonterm[node].type = nt.type;
+    rev_rlslp->nonterm[node].level = nt.level;
+    if (nt.type == '0'){
+        rev_rlslp->nonterm[node].first = nt.first;
+        rev_rlslp->nonterm[node].second = nt.second;
+    }
+    else if (nt.type == '1'){
+        reverseRLSLP(nt.first, rev_rlslp);
+        reverseRLSLP(nt.second, rev_rlslp);
+        rev_rlslp->nonterm[node].first = nt.second;
+        rev_rlslp->nonterm[node].second = nt.first;
+    }
+    else{
+        reverseRLSLP(nt.first, rev_rlslp);
+        rev_rlslp->nonterm[node].first = nt.first;
+        rev_rlslp->nonterm[node].second = nt.second;
+    }
+}
 Node RecompressionRLSLP::getLeftMostChild(
   Node v, const space_efficient_vector<RLSLPNonterm>& grammar) {
   char type = grammar[v.var].type;
@@ -677,7 +699,6 @@ Node RecompressionRLSLP::Left(Node& x, stack<Node>& ancestors, const space_effic
   res_node.level = x.level;
   pushToStack(res_node, ancestors);
   return res_node;
-
 }
 Node RecompressionRLSLP::Right(Node& x, stack<Node>& ancestors, const space_efficient_vector<RLSLPNonterm> &grammar){
   if (x.indexInParent != -1){

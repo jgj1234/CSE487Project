@@ -154,4 +154,23 @@ class SuffixArray {
                 pointer = max(pointer - 1, c_size_t(0));
             }
         }
+        
+        c_size_t periodQuery(c_size_t l, c_size_t r){
+            c_size_t length = r - l + 1;
+            for (c_size_t i = 1; i <= length / 2; i++){
+                if (lce(l, l + i) >= length - i) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+        c_size_t leftMostIPMQuery(c_size_t xl, c_size_t xr, c_size_t yl, c_size_t yr){
+            //could speed this up with wavelet tree on the suffix array
+            c_size_t length = xr - xl + 1;
+            for (c_size_t i = yl; i <= yr - length + 1; i++){
+                c_size_t l = lce(xl, i);
+                if (l >= length) return i - yl + 1;
+            }
+            return numeric_limits<c_size_t>::max();
+        }
 };
